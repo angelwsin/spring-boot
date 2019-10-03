@@ -1,0 +1,88 @@
+
+
+
+入口
+org.springframework.web.servlet.DispatcherServlet.doDispatch
+
+查找requestMapping
+HandlerExecutionChain org.springframework.web.servlet.DispatcherServlet.getHandler(HttpServletRequest request)
+
+  1. 根据路径查询 handler
+
+  2. handler 和 HandlerInterceptor针对该路径的拦截器 组装成 HandlerExecutionChain
+     跨域 如果是Cors请求 再加入到  CorsInterceptor
+
+查找 HandlerAdapter
+org.springframework.web.servlet.DispatcherServlet.getHandlerAdapter
+
+
+执行拦截器 preHandle
+org.springframework.web.servlet.HandlerExecutionChain.applyPreHandle
+
+处理request
+org.springframework.web.servlet.HandlerAdapter.handle
+
+org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal
+
+
+org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod
+
+     创建ServletInvocableHandlerMethod(handlerMethod) 编排处理方法
+    1.org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.createInvocableHandlerMethod
+
+     调用
+    2.org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle
+       调用controller方法 返回结果
+       org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest
+            解析调用方法的参数
+           1.org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues
+                  根据支持类型得到解析方法上的每一个参数
+                  org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument
+
+                  已 org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor 为例子
+                  它支持参数上打上RequestBody 注解的解析
+
+                   查找转换器
+                   org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodArgumentResolver.readWithMessageConverters(org.springframework.http.HttpInputMessage, org.springframework.core.MethodParameter, java.lang.reflect.Type)
+                   在转换器前后做了advice切面
+                   org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice.beforeBodyRead
+                   转换
+                   org.springframework.http.converter.GenericHttpMessageConverter.read
+                   org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice.afterBodyRead
+    处理返回值
+    3.org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue
+
+      选择支持的返回值处理器 org.springframework.web.method.support.HandlerMethodReturnValueHandler
+       org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.selectHandler
+
+       以返回注解是RequestBody为例
+        org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.handleReturnValue
+
+        查找 org.springframework.http.converter.HttpMessageConverter 转换器
+
+        在转换器做下切面
+
+        org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice.beforeBodyWrite
+           真正换行
+           org.springframework.http.converter.HttpMessageConverter.write
+
+后置拦截器
+org.springframework.web.servlet.HandlerInterceptor.postHandle
+
+
+结果处理(包含异常)
+org.springframework.web.servlet.DispatcherServlet.processDispatchResult
+  查找异常解析器HandlerExceptionResolver
+  org.springframework.web.servlet.DispatcherServlet.processHandlerException
+     HandlerExceptionResolverComposite  聚会
+     得到处理异常的方法
+     org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver.getExceptionHandlerMethod
+
+     ExceptionHandlerExceptionResolver 初始化解析方法
+     org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver.initExceptionHandlerAdviceCache
+     得到具体的处理方法
+     创建ServletInvocableHandlerMethod 调用异常方法处理
+
+
+
+

@@ -1,3 +1,4 @@
+
 注解的使用
 
 @Configuration  定义配置类 注解可以用java代码的形式实现spring中xml配置文件配置的效果
@@ -40,7 +41,7 @@
 属性配置的注解
 
 @EnableConfigurationProperties 有两个功能 1）注解中的value的class 为打了注解是@ConfigurationProperties的配置类 2）注册属性处理器ConfigurationPropertiesBindingPostProcessor
-@ConfigurationProperties，它可以把同类的配置信息自动封装成实体类
+@ConfigurationProperties，它可以把同类的配置信息自动封装成实体类  需要配合其他其他注解使用自己不会初始成beandefine  或者使用 autoconfig使用 import 会解析
 
 
 
@@ -108,7 +109,7 @@
      BackgroundPreinitializer，
       DelegatingApplicationListener，FileEncodingApplicationListener
 
-      6）创建上下文 ConfigurableApplicationContext :
+      6）创建上下文 createApplicationContext() =>ConfigurableApplicationContext :
 
         如 AnnotationConfigServletWebServerApplicationContext
            默认加入以下bean
@@ -134,7 +135,7 @@
 
       ConfigFileApplicationListener,LoggingApplicationListener,BackgroundPreinitializer,DelegatingApplicationListener
 
-      10)刷新上下文  先处理 BeanDefinitionRegistryPostProcessor （优先级顺序）再处理 BeanFactoryPostProcessor
+      10)AbstractApplicationContext#refresh刷新上下文  先处理 BeanDefinitionRegistryPostProcessor （优先级顺序）再处理 BeanFactoryPostProcessor
 
 
       BeanDefinitionRegistryPostProcessor  从之前Context默认的bean中查找 根据权重  PriorityOrdered（优先级高），Ordered（需要排序）,其他
@@ -414,26 +415,27 @@ grouping.getImports() = {ArrayList@5489}  size = 22
 
 
 
+<groupId>org.springframework.boot</groupId>
+ <artifactId>spring-boot-loader</artifactId>
+
+
+spring-boot-loader   加载模块
+
+
+mvn archetype:generate -DgroupId=cai -DappName=beast-test -DartifactId=beast-test -Dpackage="com.thebeastshop.test" -DarchetypeGroupId=org.apache.maven.archetypes -DarchetypeArtifactId=maven-archetype-base -DarchetypeVersion=0.0.1-SNAPSHOT -X -DarchetypeCatalog=local
 
 
 
+mvn archetype:generate -DgroupId=vfenv -DappName=virus -DartifactId=virus -Dpackage="com.vfenv.virus" -DarchetypeGroupId=org.apache.maven.archetypes -DarchetypeArtifactId=maven-archetype-base -DarchetypeVersion=0.0.1-SNAPSHOT -X -DarchetypeCatalog=local
 
 
+matchFound =
+                (allowEagerInit || !isFactoryBean ||(dbd != null && !mbd.isLazyInit()) ||
+                containsSingleton(beanName))
+                &&(includeNonSingletons ||(dbd != null ? mbd.isSingleton() : isSingleton(beanName))) &&
+                isTypeMatch(beanName, type)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                BeanFactory  可以默认会提前初始化
 
 
 
